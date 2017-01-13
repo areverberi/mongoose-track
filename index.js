@@ -176,6 +176,29 @@ mongooseTrack.methods._revise = function(eventId) {
     }
 
 }
+mongooseTrack.methods._forget = function(eventId, single) {
+    let document = this
+
+    let historyEvent = undefined
+    historyEvent = document.history.filter(function(historyEvent) {
+        return historyEvent._id === eventId
+    })[0]
+
+    if (!historyEvent) {
+        return document
+    }
+    if (historyEvent) {
+        let amount = single ? 1 : document.history.length - 1
+
+        let indexes = document.history.map(function(historyEvent, index) {
+            return Boolean(historyEvent._id === eventId)
+        })
+
+        document.history.splice(indexes.indexOf(true), amount)
+
+        return document
+    }
+}
 mongooseTrack.methods._remove = function(eventId, val) {
     let document = this
 
@@ -206,12 +229,13 @@ mongooseTrack.plugin = function(schema, optionOverride) {
 
     schema.add(mongooseTrack.historySchema(schema, options))
     schema.add(mongooseTrack.historyAuthorSchema(schema, options))
-    schema.add({ _removed: { type: Boolean, default: false, select: false } })
+    schema.add({ _removed: { type: Boolean, select: false } })
 
     schema.statics._find = mongooseTrack.statics._find
     schema.statics._findOne = mongooseTrack.statics._findOne
 
     schema.methods._revise = mongooseTrack.methods._revise
+    schema.methods._forget = mongooseTrack.methods._forget
     schema.methods._remove = mongooseTrack.methods._remove
     schema.methods._restore = mongooseTrack.methods._restore
 

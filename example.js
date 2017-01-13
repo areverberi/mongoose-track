@@ -88,11 +88,11 @@ var run = function() {
         })
         .then(function(fruitDocument) {
 
-            // Restore the fruit by historyEvent, color =  { secondary: 'red', primary: 'blue' }
-            let restoredFruitDocument = fruitDocument._revise(fruitDocument.history[1]._id)
+            // Forget (single) historyEvent, color = { secondary: 'red', primary: 'blue' }
+            let forgottenFruitDocument = fruitDocument._forget(fruitDocument.history[1]._id, true)
 
-            // Restore the fruit by historyChangeEvent, color =  { secondary: 'pink', primary: 'blue' }
-            restoredFruitDocument = restoredFruitDocument._revise(fruitDocument.history[0].changes[1]._id)
+            // Restore the fruit by historyChangeEvent, color =  { secondary: 'pink' }
+            restoredFruitDocument = forgottenFruitDocument._revise(fruitDocument.history[0].changes[1]._id)
             return restoredFruitDocument.save()
         })
         .then(function(fruitDocument) {
@@ -124,9 +124,11 @@ var run = function() {
             fruitModel._find({})
         })
         .then(function() {
+            console.log('removed fruitModel documents')
             return fruitModel.remove({})
         })
         .then(function() {
+            console.log('removed userModel documents')
             return userModel.remove({})
         })
         .catch(function(error) {
