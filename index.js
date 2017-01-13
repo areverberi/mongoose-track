@@ -145,6 +145,7 @@ mongooseTrack.pre.save = function(schema, options) {
 mongooseTrack.methods = {}
 mongooseTrack.methods._restore = function(eventId, val) {
     let document = this
+    
     let historyEvent = undefined
     historyEvent = document.history.filter(function(historyEvent) {
         return historyEvent._id === eventId
