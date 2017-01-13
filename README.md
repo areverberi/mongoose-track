@@ -25,8 +25,6 @@ const mongoose = require('mongoose')
 const mongooseTrack = require('mongoose-track')
 mongooseTrack.options = { ... }
 
-
-
 let fruitSchema = new mongoose.Schema({
     name: { type: String },
     color: { type: String }
