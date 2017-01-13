@@ -1,6 +1,6 @@
 {
   "name": "mongoose-track",
-  "version": "0.0.41",
+  "version": "0.0.5",
   "description": "Track document changes (deeply) with optional author reference and simple options.",
   "main": "index.js",
   "scripts": {
