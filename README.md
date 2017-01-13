@@ -30,7 +30,7 @@ let fruitSchema = new mongoose.Schema({
     color: { type: String }
 })
 
-fruitSchema.plugin(mongooseTrack, { ... })
+fruitSchema.plugin(mongooseTrack.plugin, { ... })
 
 let fruitModel = mongoose.model('fruitModel', fruitSchema)
 
@@ -51,7 +51,7 @@ To set **Schema Specific Options**:
 const mongoose = require('mongoose')
 const mongooseTrack = require('mongoose-track')
 let mySchema = new mongoose.Schema({ ... })
-mySchema.plugin(mongooseTrack, { /*options*/ }
+mySchema.plugin(mongooseTrack.plugin, { /*options*/ }
 ```
 
 ###`historyIgnore` `Boolean` `false`
@@ -98,10 +98,10 @@ history: [{
 ```
 
 ###`[historyEvent]` `Array`
- * This array contains all **historyEvent**'s for the document.
+ * This array contains all **historyEvent**'s for the document
  
 ###`historyEvent.date` `Date` `new Date()`
- * This value is set just before `document.save()` is fired.
+ * This value is set just before `document.save()` is fired
 
 ###`historyEvent.author` `Mixed`
  * This value is set from `document.historyAuthor`, assuming `options.author.enabled === true`
@@ -119,16 +119,16 @@ A **historyChangeEvent** is a (singular) change to a document property that occu
 }]
 ```
 ###`[historyChangeEvent]` `Array`
- * This array contains all **historyChangeEvent**'s made within the current **historyEvent**.
+ * This array contains all **historyChangeEvent**'s made within the current **historyEvent**
  
 ###`historyChangeEvent.path` `[String]`
- * This array denotes a reference to the changed key, for example: `{ color: { primary: "blue" } } === [ 'color', 'primary' ]` 
+ * This array denotes a reference to the changed key, for example: `{ color: { primary: "blue" } } === [ 'color', 'primary' ]`
 
 ###`historyChangeEvent.before` `Mixed`
- * This value is taken from the property (located at `historyChangeEvent.path`) **before** being saved.
+ * This value is taken from the property (located at `historyChangeEvent.path`) **before** being saved
  
 ###`historyChangeEvent.after` `Mixed`
- * This value is taken from the property (located at `historyChangeEvent.path`) **after** being saved.
+ * This value is taken from the property (located at `historyChangeEvent.path`) **after** being saved
  
 ##Methods
 
@@ -175,7 +175,7 @@ let fruitSchema = new mongoose.Schema({
     color: { type: String }
 })
 
-fruitSchema.plugin(mongooseTrack)
+fruitSchema.plugin(mongooseTrack.plugin)
 
 let fruitModel = mongoose.model('fruitModel', fruitSchema)
 
@@ -198,7 +198,7 @@ let fruitSchema = new mongoose.Schema({
     color: { type: String }
 })
 
-fruitSchema.plugin(mongooseTrack)
+fruitSchema.plugin(mongooseTrack.plugin)
 
 let fruitModel = mongoose.model('fruitModel', fruitSchema)
 
@@ -221,7 +221,7 @@ let fruitSchema = new mongoose.Schema({
     color: { type: String }
 })
 
-fruitSchema.plugin(mongooseTrack)
+fruitSchema.plugin(mongooseTrack.plugin)
 
 let fruitModel = mongoose.model('fruitModel', fruitSchema)
 
@@ -230,7 +230,7 @@ let userSchema = new mongoose.Schema({
     color: { type: String }
 })
 
-userSchema.plugin(mongooseTrack)
+userSchema.plugin(mongooseTrack.plugin)
 
 let userModel = mongoose.model('userModel', userSchema)
 
