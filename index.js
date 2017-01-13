@@ -143,21 +143,35 @@ mongooseTrack.pre.save = function(schema, options) {
     }
 }
 mongooseTrack.methods = {}
-mongooseTrack.methods._restore = function(historyEventId) {
+mongooseTrack.methods._restore = function(eventId, val) {
     let document = this
-    var historyEvent = document.history.filter(function(historyEvent) {
-        return historyEvent._id === historyEventId
+    let historyEvent = undefined
+    historyEvent = document.history.filter(function(historyEvent) {
+        return historyEvent._id === eventId
     })[0]
 
-    if (!historyEvent) {
-        return
-    }
-
-    historyEvent.changes.forEach(function(historyEventItem) {
-        dotRefSet(document, historyEventItem.path.join('.'), historyEventItem.after)
+    var historyChangeEvent = undefined
+    document.history.forEach(function(historyEvent) {
+        historyChangeEvent = historyEvent.changes.filter(function(historyChangeEvent) {
+            return historyChangeEvent._id === eventId
+        })[0] || historyChangeEvent
     })
 
-    return document
+    if (!historyEvent && !historyChangeEvent) {
+        return document
+    }
+    if(historyEvent) {
+        historyEvent.changes.forEach(function(historyChangeEvent) {
+            dotRefSet(document, historyChangeEvent.path.join('.'), historyChangeEvent.after)
+        })
+
+        return document
+    }
+    if(historyChangeEvent) {
+        dotRefSet(document, historyChangeEvent.path.join('.'), historyChangeEvent.after)
+        return document
+    }
+
 }
 mongooseTrack.plugin = function(schema, optionOverride) {
     let options = merge(mongooseTrack._options, mongooseTrack.options, optionOverride)

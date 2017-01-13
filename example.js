@@ -28,7 +28,6 @@ userSchema.plugin(mongooseTrack.plugin)
 
 let userModel = mongoose.model('userModel', userSchema)
 
-
 var tempUser = new userModel({
     name: 'Steve',
     age: 56
@@ -83,6 +82,7 @@ var run = function() {
 
             // Modify the fruit
             fruitDocument.color.primary = 'blue'
+            fruitDocument.color.secondary = 'red'
             fruitDocument.historyAuthor = tempUser._id
             return fruitDocument.save()
         })
@@ -90,15 +90,18 @@ var run = function() {
 
             // Modify the fruit
             fruitDocument.color.primary = 'green'
+            fruitDocument.color.secondary = 'pink'
             fruitDocument.historyAuthor = tempUser._id
             return fruitDocument.save()
         })
         .then(function(fruitDocument) {
 
-            // Restore the fruit (color = blue)
+            // Restore the fruit by historyEvent, color =  { secondary: 'red', primary: 'blue' }
             let restoredFruitDocument = fruitDocument._restore(fruitDocument.history[1]._id)
+
+            // Restore the fruit by historyChangeEvent, color =  { secondary: 'pink', primary: 'blue' }
+            restoredFruitDocument = restoredFruitDocument._restore(fruitDocument.history[0].changes[1]._id)
             return restoredFruitDocument.save()
-            // return fruitModel.findOne({ _id: tempFruit._id })
         })
         .then(function(fruitDocument) {
 
