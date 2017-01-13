@@ -224,6 +224,16 @@ mongooseTrack.statics._findOne = function(query) {
     return this.findOne(query)
         .select('+_removed')
 }
+mongooseTrack.statics._remove = function(query) {
+    return this.update(query, {
+        _removed: true
+    })
+}
+mongooseTrack.statics._restore = function(query) {
+    return this.update(query, {
+        _removed: false
+    })
+}
 mongooseTrack.plugin = function(schema, optionOverride) {
     let options = merge(mongooseTrack._options, mongooseTrack.options, optionOverride)
 
@@ -233,6 +243,8 @@ mongooseTrack.plugin = function(schema, optionOverride) {
 
     schema.statics._find = mongooseTrack.statics._find
     schema.statics._findOne = mongooseTrack.statics._findOne
+    schema.statics._remove = mongooseTrack.statics._remove
+    schema.statics._restore = mongooseTrack.statics._restore
 
     schema.methods._revise = mongooseTrack.methods._revise
     schema.methods._forget = mongooseTrack.methods._forget
