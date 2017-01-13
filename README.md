@@ -138,9 +138,11 @@ This method accepts an `_id` from a **historyEvent** or **historyChangeEvent** a
 
 _This method **will not** modify the `document.history`._
 
-###`document._forget(historyEventId)` `Function`
+###`document._forget(historyEventId, single)` `Function`
 
-This method accepts an `_id` from a **historyEvent** and will remove all `document.history` prior to the `historyEventId`
+This method accepts an `_id` from a **historyEvent** and will remove all `document.history` prior to and including the matching **historyEvent**.
+
+If `single` is set to `true` only the matching **historyEvent** will be removed.
 
 _This method **will** modify the `document.history`._
 
