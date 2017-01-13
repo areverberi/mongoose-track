@@ -10,12 +10,23 @@ const dotRef = function(obj, str) {
 }
 
 const mongooseTrack = function(schema, options) {
-    var options = merge(mongooseTrack.options, options)
+    defaultOptions = {
+        track: {
+            N: true,
+            E: true
+        },
+        author: {
+            enable: false,
+            type: "",
+            ref: ""
+        }
+    }
+    var options = merge(defaultOptions, mongooseTrack.options, options)
 
     var historyObject = {}
 
     if (options.author.enable === true) {
-        
+
         historyObject.author = { type: options.author.type, ref: options.author.ref, historyIgnore: true }
 
         schema.add({ historyAuthor: { type: options.author.type, ref: options.author.ref, historyIgnore: true } })
@@ -39,7 +50,7 @@ const mongooseTrack = function(schema, options) {
     schema.pre('save', function(next) {
 
         let diffArray = diffCheck(this._original, this.toObject())
-        if (diffArray.length <= 0) {
+        if (!diffArray || diffArray.length <= 0) {
             return next()
         }
 
@@ -112,7 +123,7 @@ mongooseTrack.options = {
     },
     author: {
         enable: false,
-        type: mongoose.Schema.Types.ObjectId,
+        type: "",
         ref: ""
     }
 }
