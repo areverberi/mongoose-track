@@ -4,12 +4,12 @@ Mongoose Track allows you to track document changes (deeply) with optional autho
 
 ##Install
 
-_Install mongoose-track from NPM_
+_Install `mongoose-track` from NPM_
 ```shell
 npm i mongoose-track --save
 ```
 
-_Require mongoose-track within project_
+_Require `mongoose-track` within project_
 ```js
 const mongooseTrack = require('mongoose-track')
 ```
