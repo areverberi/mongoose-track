@@ -133,8 +133,8 @@ mongooseTrack.post.init = function() {
 mongooseTrack.pre = {}
 mongooseTrack.pre.save = function(schema, options) {
     return function(next) {
-        var document = this
-        var historyEvent = mongooseTrack.historyEvent(schema, options, document._original, document.toObject())
+        let document = this
+        let historyEvent = mongooseTrack.historyEvent(schema, options, document._original, document.toObject())
         if (historyEvent) {
             document.history.unshift(historyEvent)
         }
@@ -161,7 +161,7 @@ mongooseTrack.methods._revise._id = function(document, eventId, deepRevision) {
         return historyEvent._id === eventId
     })
 
-    var historyChangeEvent = undefined
+    let historyChangeEvent = undefined
     document.history.forEach(function(historyEvent) {
         historyChangeEvent = historyEvent.changes.filter(function(historyChangeEvent) {
             return historyChangeEvent._id === eventId
@@ -199,7 +199,7 @@ mongooseTrack.methods._revise._date = function(document, date, deepRevision) {
             })
         })
     }
-    
+
     return document
 }
 mongooseTrack.methods._forget = function(eventId, single) {
