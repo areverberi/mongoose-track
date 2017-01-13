@@ -290,5 +290,8 @@ To pass the author reference, set `document.historyAuthor` before you save the d
 ##Contribute
 Feel free to send pull requests and submit issues 😉
 
+##Testing
+None yet, however you're welcome to write some and submit a pull request.
+
 ##Disclaimer
 I wrote this package and documentation within a few hours, then rewrote it within a couple more, please be careful there's probably a bug or two.
