@@ -11,7 +11,7 @@ npm i mongoose-track --save
 
 _Require mongoose-track within project_
 ```js
-mongooseTrack = require('mongoose-track')
+const mongooseTrack = require('mongoose-track')
 ```
 
 ###Usage
@@ -167,7 +167,7 @@ To pass the author reference, set `document.historyAuthor` before you save the d
   var fruit = new fruitModel({
     name: 'Banana',
     color: 'Yellow',
-    historyAuthor: 507f191e810c19729de860ea
+    historyAuthor: '507f191e810c19729de860ea'
   })
   
   fruit.save()
@@ -178,7 +178,7 @@ To pass the author reference, set `document.historyAuthor` before you save the d
     color: 'Yellow',
     history: [{
       date: ...
-      author: 507f191e810c19729de860ea,
+      author: '507f191e810c19729de860ea',
       changes: [{
         type: 'N',
         path: [],
