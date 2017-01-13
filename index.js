@@ -167,15 +167,9 @@ mongooseTrack.methods._revise._id = function(document, eventId, deepRevision) {
             return historyChangeEvent._id === eventId
         })[0] || historyChangeEvent
     })
+
     if (historyEventArray.length > 0) {
-        if (deepRevision !== true) {
-            historyEventArray = historyEventArray.slice(0, 1)
-        }
-        historyEventArray.reverse().forEach(function(historyEvent) {
-            historyEvent.changes.forEach(function(historyChangeEvent) {
-                dotRefSet(document, historyChangeEvent.path.join('.'), historyChangeEvent.after)
-            })
-        })
+        return mongooseTrack.methods._revise._historyEventArray(document, historyEventArray, deepRevision)
     }
     if (historyChangeEvent) {
         dotRefSet(document, historyChangeEvent.path.join('.'), historyChangeEvent.after)
@@ -184,22 +178,26 @@ mongooseTrack.methods._revise._id = function(document, eventId, deepRevision) {
     return document
 }
 mongooseTrack.methods._revise._date = function(document, date, deepRevision) {
-    let historyEvent = undefined
-    historyEvent = document.history.filter(function(historyEvent) {
+    let historyEventArray = undefined
+    historyEventArray = document.history.filter(function(historyEvent) {
         return historyEvent.date <= date
     })
 
     if (historyEventArray.length > 0) {
-        if (deepRevision !== true) {
-            historyEventArray = historyEventArray.slice(0, 1)
-        }
-        historyEventArray.reverse().forEach(function(historyEvent) {
-            historyEvent.changes.forEach(function(historyChangeEvent) {
-                dotRefSet(document, historyChangeEvent.path.join('.'), historyChangeEvent.after)
-            })
-        })
+        return mongooseTrack.methods._revise._historyEventArray(document, historyEventArray, deepRevision)
     }
 
+    return document
+}
+mongooseTrack.methods._revise._historyEventArray = function(document, historyEventArray, deepRevision) {
+    if (deepRevision !== true) {
+        historyEventArray = historyEventArray.slice(0, 1)
+    }
+    historyEventArray.reverse().forEach(function(historyEvent) {
+        historyEvent.changes.forEach(function(historyChangeEvent) {
+            dotRefSet(document, historyChangeEvent.path.join('.'), historyChangeEvent.after)
+        })
+    })
     return document
 }
 mongooseTrack.methods._forget = function(eventId, single) {

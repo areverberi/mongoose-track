@@ -1,4 +1,4 @@
-# Mongoose Track `0.0.5`
+# Mongoose Track `0.0.52`
 
 Mongoose Track allows you to track and manage document changes (deeply) with author references and simple helper methods/statics.
 
