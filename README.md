@@ -1,4 +1,4 @@
-# Mongoose Track `0.0.41`
+# Mongoose Track `0.0.5`
 
 Mongoose Track allows you to track document changes (deeply) with optional author reference and simple options.
 
@@ -132,23 +132,31 @@ A **historyChangeEvent** is a (singular) change to a document property that occu
  
 ##Methods
 
-###`document._remove()` `Function`
+###`document._remove()`
 
 This method will set `document._removed` to `true`
 
-###`document._restore()` `Function`
+###`document._restore()`
 
 This method will set `document._removed` to `false`
 
 _This method **will not** modify the `document.history` but will in the future_
 
-###`document._revise(historyEventId || historyChangeEventId)` `Function`
+###`document._revise(query, deepRevision)` `Mixed` `Boolean`
 
-This method accepts an `_id` from a **historyEvent** or **historyChangeEvent** and will return a document with values matching the `historyEvent._id || historyChangeEvent._id`
+If the `query` value is an `ObjectId` value from a **historyEvent** or **historyChangeEvent** this will return a document with values matching the `historyEvent._id || historyChangeEvent._id`
+
+If the `query` value is a `Date` value it will find the latest **historyEvent** that occurred prior to the `Date` value.
+
+If `deepRevision` is set to `true` a deep revision will occur, this will revise the document to **exactly** how it was when the matching **historyEvent** was created by recursivly setting all prior values from oldest to latest, stopping at the matching **historyEvent**.
+
+If `deepRevision` is set to `false` only the changes within the matching **historyEvent** or **historyChangeEvent** will be revised.
+
+Currently `deepRevision` does not support a `query` value of a **historyChangeEvent** `ObjectId`.
 
 _This method **will not** modify the `document.history`_
 
-###`document._forget(historyEventId, single)` `Function`
+###`document._forget(historyEventId, single)` `ObjectId` `Boolean`
 
 This method accepts an `_id` from a **historyEvent** and will remove all `document.history` prior to and including the matching **historyEvent**
 
@@ -158,21 +166,21 @@ _This method **will** modify the `document.history`_
 
 ##Statics
 
-###`model._remove(mongoose.query)` `Function`
+###`model._remove(query)` `mongoose.Query`
 
-This static will set `document._removed` to `true` and returns a response from `model.update(mongoose.query)`
+This static will set `document._removed` to `true` and returns a response from `model.update(query)`
 
-###`model._restore(mongoose.query)` `Function`
+###`model._restore(query)` `mongoose.Query`
 
-This static will set `document._removed` to `false` and returns a response from `model.update(mongoose.query)`
+This static will set `document._removed` to `false` and returns a response from `model.update(query)`
 
-###`model._find(mongoose.query)` `Function`
+###`model._find(query)` `mongoose.Query`
 
-This static simply appends `removed = false` to the `mongoose.query` and returns `model.find(mongoose.query)`
+This static simply appends `removed = false` to the `query` and returns `model.find(query)`
 
-###`model._findOne(mongoose.query)` `Function`
+###`model._findOne(query)` `mongoose.Query`
 
-This static simply appends `removed = false` to the `mongoose.query` and returns `model.findOne(mongoose.query)`
+This static simply appends `removed = false` to the `query` and returns `model.findOne(query)`
 
 ##Questions
 

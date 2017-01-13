@@ -145,21 +145,21 @@ mongooseTrack.pre.save = function(schema, options) {
     }
 }
 mongooseTrack.methods = {}
-mongooseTrack.methods._revise = function(query) {
+mongooseTrack.methods._revise = function(query, deepRevision) {
     let document = this
 
     if (Object.prototype.toString.call(query) === '[object Date]') {
-        return mongooseTrack.methods._revise._date(document, query)
+        return mongooseTrack.methods._revise._date(document, query, deepRevision)
     } else {
-        return mongooseTrack.methods._revise._id(document, query)
+        return mongooseTrack.methods._revise._id(document, query, deepRevision)
     }
 
 }
-mongooseTrack.methods._revise._id = function(document, eventId) {
-    let historyEvent = undefined
-    historyEvent = document.history.filter(function(historyEvent) {
+mongooseTrack.methods._revise._id = function(document, eventId, deepRevision) {
+    let historyEventArray = undefined
+    historyEventArray = document.history.filter(function(historyEvent) {
         return historyEvent._id === eventId
-    })[0]
+    })
 
     var historyChangeEvent = undefined
     document.history.forEach(function(historyEvent) {
@@ -167,40 +167,40 @@ mongooseTrack.methods._revise._id = function(document, eventId) {
             return historyChangeEvent._id === eventId
         })[0] || historyChangeEvent
     })
-
-    if (!historyEvent && !historyChangeEvent) {
-        return document
-    }
-    if (historyEvent) {
-        console.log(historyEvent._id)
-        historyEvent.changes.forEach(function(historyChangeEvent) {
-            dotRefSet(document, historyChangeEvent.path.join('.'), historyChangeEvent.after)
+    if (historyEventArray.length > 0) {
+        if (deepRevision !== true) {
+            historyEventArray = historyEventArray.slice(0, 1)
+        }
+        historyEventArray.reverse().forEach(function(historyEvent) {
+            historyEvent.changes.forEach(function(historyChangeEvent) {
+                dotRefSet(document, historyChangeEvent.path.join('.'), historyChangeEvent.after)
+            })
         })
-
-        return document
     }
     if (historyChangeEvent) {
         dotRefSet(document, historyChangeEvent.path.join('.'), historyChangeEvent.after)
-        return document
     }
+
+    return document
 }
-mongooseTrack.methods._revise._date = function(document, date) {
+mongooseTrack.methods._revise._date = function(document, date, deepRevision) {
     let historyEvent = undefined
     historyEvent = document.history.filter(function(historyEvent) {
         return historyEvent.date <= date
     })
 
-    if (!historyEvent.length) {
-        return document
-    }
-    if (historyEvent) {
-        historyEvent.reverse().forEach(function(historyEvent) {
+    if (historyEventArray.length > 0) {
+        if (deepRevision !== true) {
+            historyEventArray = historyEventArray.slice(0, 1)
+        }
+        historyEventArray.reverse().forEach(function(historyEvent) {
             historyEvent.changes.forEach(function(historyChangeEvent) {
                 dotRefSet(document, historyChangeEvent.path.join('.'), historyChangeEvent.after)
             })
         })
-        return document
     }
+    
+    return document
 }
 mongooseTrack.methods._forget = function(eventId, single) {
     let document = this
