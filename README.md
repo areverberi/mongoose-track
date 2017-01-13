@@ -1,4 +1,4 @@
-# Mongoose Track `0.0.31`
+# Mongoose Track `0.0.4`
 
 Mongoose Track allows you to track document changes (deeply) with optional author reference and simple options.
 
@@ -132,29 +132,47 @@ A **historyChangeEvent** is a (singular) change to a document property that occu
  
 ##Methods
 
+###`document._remove()` `Function`
+
+This method will set `document._removed` to `true`
+
+###`document._restore()` `Function`
+
+This method will set `document._removed` to `false`
+
+_This method **will not** modify the `document.history` but will in the future_
+
 ###`document._revise(historyEventId || historyChangeEventId)` `Function`
 
-This method accepts an `_id` from a **historyEvent** or **historyChangeEvent** and will return a document with values matching the `historyEvent._id || historyChangeEvent._id`.
+This method accepts an `_id` from a **historyEvent** or **historyChangeEvent** and will return a document with values matching the `historyEvent._id || historyChangeEvent._id`
 
-_This method **will not** modify the `document.history`._
+_This method **will not** modify the `document.history`_
 
 ###`document._forget(historyEventId, single)` `Function`
 
-This method accepts an `_id` from a **historyEvent** and will remove all `document.history` prior to and including the matching **historyEvent**.
+This method accepts an `_id` from a **historyEvent** and will remove all `document.history` prior to and including the matching **historyEvent**
 
-If `single` is set to `true` only the matching **historyEvent** will be removed.
+If `single` is set to `true` only the matching **historyEvent** will be removed
 
-_This method **will** modify the `document.history`._
+_This method **will** modify the `document.history`_
 
 ##Statics
 
+###`model._remove(mongoose.query)` `Function`
+
+This static will set `document._removed` to `true` and returns a response from `model.update(mongoose.query)`
+
+###`model._restore(mongoose.query)` `Function`
+
+This static will set `document._removed` to `false` and returns a response from `model.update(mongoose.query)`
+
 ###`model._find(mongoose.query)` `Function`
 
-This static simply appends `removed = true` to the `mongoose.query` and returns `model.find(mongoose.query)`
+This static simply appends `removed = false` to the `mongoose.query` and returns `model.find(mongoose.query)`
 
 ###`model._findOne(mongoose.query)` `Function`
 
-This static simply appends `removed = true` to the `mongoose.query` and returns `model.findOne(mongoose.query)`
+This static simply appends `removed = false` to the `mongoose.query` and returns `model.findOne(mongoose.query)`
 
 ##Questions
 
