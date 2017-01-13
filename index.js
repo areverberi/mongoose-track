@@ -239,14 +239,32 @@ mongooseTrack.methods._restore = function(eventId, val) {
 }
 mongooseTrack.statics = {}
 mongooseTrack.statics._find = function(query) {
-    query._removed = false
+    let _query = merge(query, {})
+    if (query.$revision) {
+        delete query.$revision
+    }
     return this.find(query)
-        .select('+_removed')
+        .then(function(documentArray) {
+            if (_query.$revision) {
+                documentArray.forEach(function(document) {
+                    mongooseTrack.methods._revise._date(document, _query.$revision, false)
+                })
+            }
+            return documentArray
+        })
 }
 mongooseTrack.statics._findOne = function(query) {
-    query._removed = false
+    let _query = merge(query, {})
+    if (query.$revision) {
+        delete query.$revision
+    }
     return this.findOne(query)
-        .select('+_removed')
+        .then(function(document){
+            if (_query.$revision) {
+                mongooseTrack.methods._revise._date(document, _query.$revision, false)
+            }
+            return document
+        })
 }
 mongooseTrack.statics._remove = function(query) {
     return this.update(query, {
