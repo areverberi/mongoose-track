@@ -1,8 +1,8 @@
-# Mongoose Track
+# Mongoose Track `0.0.2`
 
 Mongoose Track allows you to track document changes (deeply) with optional author reference and simple options.
 
-###Install
+##Install
 
 _Install mongoose-track from NPM_
 ```shell
@@ -14,9 +14,9 @@ _Require mongoose-track within project_
 const mongooseTrack = require('mongoose-track')
 ```
 
-###Usage
+##Usage
 
-####Getting Started
+###Getting Started
 
 _Set Mongoose Track as a plugin for your schema_
 
@@ -36,59 +36,117 @@ let fruitModel = mongoose.model('fruitModel', fruitSchema)
 
 ```
 
-####Options
-
-Mongoose Track has a few options, what changes to look for and setting an author for changes.
+##Options
 
 You can set options globaly or per schema by passing a second argument to the plugin.
 
+To set **Global Options** use:
 ```js
-options: {
-  track: {
-    N: Boolean,         //default true
-    E: Boolean          //default true
-  },
-  author: {
-    enable: Boolean,    //default false
-    type: Mixed,        //default `mongoose.Schema.Types.ObjectId`,
-    ref: String,        //default ""
-  }
-}
+const mongooseTrack = require('mongoose-track')
+mongooseTrack.options = { /*options*/ }
 ```
- * `options.track.N` will track changes if something was previously undefined.
- * `options.track.E` will track changes if something was previously defined.
- * `options.author.enable` will append an author field to each history event.
- * `options.author.type` if the author is referencing a document this should be the document type.
- * `options.author.ref` if the author is referencing a document this should be the model name.
+To set **Schema Specific Options** use:
+```js
+const mongoose = require('mongoose')
+const mongooseTrack = require('mongoose-track')
+let mySchema = new mongoose.Schema({ ... })
+mySchema.plugin(mongooseTrack, { /*options*/ }
+```
 
-###History Events
+###`historyIgnore` `Boolean` `false`
+This property is set within the Schema, for example:
+```js
+let fruitSchema = new mongoose.Schema({
+    name: { type: String },
+    color: { type: String, historyIgnore: true }
+})
+```
 
-History events are stored as an `Array` on the schema root at `document.history` and look like this:
+ * `true` Changes to this property **will not** be added to the **historyEvent**
+ * `false` Changes to this property **will** be added to the **historyEvent**
+
+###`options.track.N` `Boolean` `true`
+ * `true` Properties that were previously undefined (not set) **will** be added to the **historyEvent**
+ * `false` Properties that were previously undefined (not set) **will not** be added to the **historyEvent**
+
+###`options.track.E` `Boolean` `true`
+ * `true` Properties that were previously defined **will** be added to the **historyEvent**
+ * `false` Properties that were previously defined **will not** be added to the **historyEvent**
+
+###`options.author.enabled` `Boolean` `false`
+ * `true` The `document.historyAuthor` value **will** be appended to the **historyEvent**
+ * `false` No author value will be appended to the **historyEvent**
+
+###`options.author.type` `Mixed` `mongoose.Schema.Types.String`
+ * `Mixed` This should be set to the `_id` type of the author document, typically you'll use `mongoose.Schema.Types.ObjectId`
+
+###`options.author.ref` `String` `undefined`
+ * `String` This should be set to the collection within which your author document is located, such as `"userModel"`
+
+##History Events `historyEvent`
+
+History events are stored as an `Array` on the schema root at `document.history`, stored as `newest first` and look like this:
 
 ```js
 history: [{
-  _id: ObjectId,
-  date: Date,
-  author: Mixed,
-  changes: [{
     _id: ObjectId,
-    path: [String],
-    before: Mixed,
-    after: Mixed
-  }]
+    date: Date,
+    author: Mixed,
+    changes: [{
+        _id: ObjectId,
+        path: [String],
+        before: Mixed,
+        after: Mixed
+    }]
 }]
 ```
- * `history[].date` is the date which the event occured
- * `history[].author` is a reference to the `author` document, if enabled.
- * `history[].changes[].path` is a String array reference to the changed value.
- * `history[].changes[].before` is the previous value.
- * `history[].changes[].after` is the new value.
- 
-Additionally, a `document.historyAuthor` key is available when the author option is enabled, you would set this value prior to saving the document, this value is not retained after the Mongoose Track plugin has completed.
- 
-###Example
 
-####Simple Example
+###`historyEvent.date` `Date` `new Date()`
+ * This value is set just before `document.save()` is fired.
+
+###`historyEvent.author` `Mixed`
+ * This value is set from `document.historyAuthor`, assuming `options.author.enabled === true`
+ 
+###`historyEvent.changes[]` `Array`
+ * This array contains all changes made within the current **historyEvent**
+ 
+###`historyEvent.changes[].path` `[String]`
+ * This array denotes a reference to the changed key, for example: `{ color: { primary: "blue" } } === [ 'color', 'primary' ]` 
+
+###`historyEvent.changes[].before` `Mixed`
+ * This value is the value of the property located at `historyEvent.changes[].path` prior being saved.
+ 
+###`historyEvent.changes[].after` `Mixed`
+ * This value is the value of the property located at `historyEvent.changes[].path` after being saved.
+ 
+##Methods
+
+###`document._restore(historyEventId)` `Function`
+
+This method accepts an `_id` from a **historyEvent** and will return a document with values matching the `historyEventId`.
+
+_This method **will not** modify the `document.history`._
+
+###`document._forget(historyEventId)` `Function`
+
+This method accepts an `_id` from a **historyEvent** and will remove all `document.history` prior to the `historyEventId`
+
+_This method **will** modify the `document.history`._
+
+##Example
+
+###Usage
+Clone this repository and run `example.js`
+```
+git clone https://github.com/brod/mongoose-track.git
+cd mongoose-track
+node example.js
+```
+You should see the output of all **historyEvent** and **changes** to a document including _manual changes_, _authored changes_ and a _revision_.
+
+_This will connect to `mongodb://localhost/mongooseTrackExample`_
+
+###Minimum Example
 _The example below uses the minimum setup._
 
 ```js
@@ -106,7 +164,7 @@ let fruitModel = mongoose.model('fruitModel', fruitSchema)
 
 ```
 
-####Option Example
+###Option Example
 _The example below does not track `N` events._
 
 ```js
@@ -191,8 +249,8 @@ To pass the author reference, set `document.historyAuthor` before you save the d
   */
 ```
 
-####Contribute
-Feel free to send pull requests and submit issues! No special requirements :)
+##Contribute
+Feel free to send pull requests and submit issues 😉
 
-####Disclaimer
-I wrote this package and documentation within 2 hours, please be careful there's probably a bug or two.
+##Disclaimer
+I wrote this package and documentation within a few hours, then rewrote it within a couple more, please be careful there's probably a bug or two.
