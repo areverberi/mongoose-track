@@ -1,0 +1,33 @@
+{
+  "name": "mongoose-track",
+  "version": "0.0.0",
+  "description": "Track document changes (deeply) with optional author reference and simple options.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brod/mongoose-track.git"
+  },
+  "keywords": [
+    "mongoose",
+    "track",
+    "changes",
+    "history",
+    "diff",
+    "document",
+    "audit"
+  ],
+  "author": "brod",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/brod/mongoose-track/issues"
+  },
+  "homepage": "https://github.com/brod/mongoose-track#readme",
+  "dependencies": {
+    "deep-diff": "^0.3.4",
+    "merge-options": "0.0.64",
+    "mongoose": "^4.7.6"
+  }
+}
