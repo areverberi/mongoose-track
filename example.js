@@ -55,14 +55,6 @@ let tempFruit = new fruitModel({
         secondary: 'green'
     }
 })
-// fruitModel.find({})
-//     .then(function(e) {
-//         console.log('fruit done:', e)
-//     })
-// userModel.find({})
-//     .then(function(e) {
-//         console.log('user done: ', e)
-//     })
 
 var run = function() {
 
@@ -97,10 +89,10 @@ var run = function() {
         .then(function(fruitDocument) {
 
             // Restore the fruit by historyEvent, color =  { secondary: 'red', primary: 'blue' }
-            let restoredFruitDocument = fruitDocument._restore(fruitDocument.history[1]._id)
+            let restoredFruitDocument = fruitDocument._revise(fruitDocument.history[1]._id)
 
             // Restore the fruit by historyChangeEvent, color =  { secondary: 'pink', primary: 'blue' }
-            restoredFruitDocument = restoredFruitDocument._restore(fruitDocument.history[0].changes[1]._id)
+            restoredFruitDocument = restoredFruitDocument._revise(fruitDocument.history[0].changes[1]._id)
             return restoredFruitDocument.save()
         })
         .then(function(fruitDocument) {
@@ -128,6 +120,8 @@ var run = function() {
                 })
                 console.log('')
             })
+
+            fruitModel._find({})
         })
         .then(function() {
             return fruitModel.remove({})

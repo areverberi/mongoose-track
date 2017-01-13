@@ -1,20 +1,20 @@
-# Mongoose Track `0.0.2`
+# Mongoose Track `0.0.3`
 
 Mongoose Track allows you to track document changes (deeply) with optional author reference and simple options.
 
-##Install
+##Usage
+
+###Install
 
 _Install `mongoose-track` from NPM_
 ```shell
 npm i mongoose-track --save
 ```
 
-_Require `mongoose-track` within project_
+_Require `mongoose-track` within your project_
 ```js
 const mongooseTrack = require('mongoose-track')
 ```
-
-##Usage
 
 ###Getting Started
 
@@ -35,17 +35,18 @@ fruitSchema.plugin(mongooseTrack, { ... })
 let fruitModel = mongoose.model('fruitModel', fruitSchema)
 
 ```
+All changes to `fruitModel` documents will now be written to the document at `document.history`.
 
 ##Options
 
-You can set options globaly or per schema by passing a second argument to the plugin.
+You can set options globaly or per schema by passing a second argument to the plugin, schema specific options override global options.
 
-To set **Global Options** use:
+To set **Global Options**:
 ```js
 const mongooseTrack = require('mongoose-track')
 mongooseTrack.options = { /*options*/ }
 ```
-To set **Schema Specific Options** use:
+To set **Schema Specific Options**:
 ```js
 const mongoose = require('mongoose')
 const mongooseTrack = require('mongoose-track')
@@ -85,45 +86,55 @@ let fruitSchema = new mongoose.Schema({
 
 ##History Events `historyEvent`
 
-History events are stored as an `Array` on the schema root at `document.history`, stored as `newest first` and look like this:
+A **historyEvent** is created when you save a document, if there are (tracked) property changes to that document they will be appended to the **historyEvent** and the **historyEvent** will be placed at the top of the `document.history` Array, otherwise no **historyEvent** will be saved.
 
 ```js
 history: [{
     _id: ObjectId,
     date: Date,
     author: Mixed,
-    changes: [{
-        _id: ObjectId,
-        path: [String],
-        before: Mixed,
-        after: Mixed
-    }]
+    changes: [{ ... }]
 }]
 ```
 
+###`[historyEvent]` `Array`
+ * This array contains all **historyEvent**'s for the document.
+ 
 ###`historyEvent.date` `Date` `new Date()`
  * This value is set just before `document.save()` is fired.
 
 ###`historyEvent.author` `Mixed`
  * This value is set from `document.historyAuthor`, assuming `options.author.enabled === true`
+
+##History Change Events `historyChangeEvent`
+
+A **historyChangeEvent** is a (singular) change to a document property that occurred within `document.history[].changes`.
+
+```js
+[{
+    _id: ObjectId,
+    path: [String],
+    before: Mixed,
+    after: Mixed
+}]
+```
+###`[historyChangeEvent]` `Array`
+ * This array contains all **historyChangeEvent**'s made within the current **historyEvent**.
  
-###`historyEvent.changes[]` `Array`
- * This array contains all changes made within the current **historyEvent**
- 
-###`historyEvent.changes[].path` `[String]`
+###`historyChangeEvent.path` `[String]`
  * This array denotes a reference to the changed key, for example: `{ color: { primary: "blue" } } === [ 'color', 'primary' ]` 
 
-###`historyEvent.changes[].before` `Mixed`
- * This value is the value of the property located at `historyEvent.changes[].path` prior being saved.
+###`historyChangeEvent.before` `Mixed`
+ * This value is taken from the property (located at `historyChangeEvent.path`) **before** being saved.
  
-###`historyEvent.changes[].after` `Mixed`
- * This value is the value of the property located at `historyEvent.changes[].path` after being saved.
+###`historyChangeEvent.after` `Mixed`
+ * This value is taken from the property (located at `historyChangeEvent.path`) **after** being saved.
  
 ##Methods
 
-###`document._restore(historyEventId)` `Function`
+###`document._revise(historyEventId || historyChangeEventId)` `Function`
 
-This method accepts an `_id` from a **historyEvent** and will return a document with values matching the `historyEventId`.
+This method accepts an `_id` from a **historyEvent** or **historyChangeEvent** and will return a document with values matching the `historyEvent._id || historyChangeEvent._id`.
 
 _This method **will not** modify the `document.history`._
 
@@ -132,6 +143,12 @@ _This method **will not** modify the `document.history`._
 This method accepts an `_id` from a **historyEvent** and will remove all `document.history` prior to the `historyEventId`
 
 _This method **will** modify the `document.history`._
+
+##Questions
+
+ > If a **historyEvent** occurs but no **historyChangeEvent**'s are logged, does it really happen?
+
+No. If a document is saved but no **historyChangeEvent**'s are logged then the **historyEvent** will not be written.
 
 ##Example
 
@@ -142,7 +159,7 @@ git clone https://github.com/brod/mongoose-track.git
 cd mongoose-track
 node example.js
 ```
-You should see the output of all **historyEvent** and **changes** to a document including _manual changes_, _authored changes_ and a _revision_.
+You should see the output of all **historyEvent** and **historyChangeEvents** to a document including _manual changes_, _authored changes_ and a _revision_.
 
 _This will connect to `mongodb://localhost/mongooseTrackExample`_
 

@@ -1,16 +1,18 @@
 const diffCheck = require('deep-diff').diff
 const merge = require('merge-options')
 const mongoose = require('mongoose')
-const dotRef = function(obj, str) {
+
+const dotRefGet = function(obj, str) {
     str = str.split('.')
     for (var i = 0; i < str.length; i++) {
         obj = obj[str[i]]
     }
     return obj
 }
+
 const dotRefSet = function(obj, str, val) {
     str = str.split('.')
-    for (var i = 0; i < str.length-1; i++) {
+    for (var i = 0; i < str.length - 1; i++) {
         obj = obj[str[i]]
     }
     let _path = str[str.length - 1]
@@ -74,7 +76,7 @@ mongooseTrack.historyEvent = function(schema, options, _document, document) {
         if (options.track.N !== true) {
             return false
         }
-        let schemaProp = dotRef(schema.tree, (diff.path || []).join('.')) || {}
+        let schemaProp = dotRefGet(schema.tree, (diff.path || []).join('.')) || {}
         if (schemaProp.historyIgnore === true) {
             return false
         }
@@ -94,7 +96,7 @@ mongooseTrack.historyEvent = function(schema, options, _document, document) {
         if (options.track.E !== true) {
             return false
         }
-        let schemaProp = dotRef(schema.tree, diff.path.join('.')) || {}
+        let schemaProp = dotRefGet(schema.tree, diff.path.join('.')) || {}
         if (schemaProp.historyIgnore === true) {
             return false
         }
@@ -107,7 +109,7 @@ mongooseTrack.historyEvent = function(schema, options, _document, document) {
     }
 
     diffArray.forEach(function(diff) {
-        if(['_id', '__v', 'history', 'historyAuthor'].indexOf(diff.path[0]) > -1) {
+        if (['_id', '__v', 'history', 'historyAuthor'].indexOf(diff.path[0]) > -1) {
             return false
         }
         switch (diff.kind) {
@@ -133,7 +135,7 @@ mongooseTrack.pre.save = function(schema, options) {
     return function(next) {
         var document = this
         var historyEvent = mongooseTrack.historyEvent(schema, options, document._original, document.toObject())
-        if(historyEvent) {
+        if (historyEvent) {
             document.history.unshift(historyEvent)
         }
 
@@ -143,9 +145,9 @@ mongooseTrack.pre.save = function(schema, options) {
     }
 }
 mongooseTrack.methods = {}
-mongooseTrack.methods._restore = function(eventId, val) {
+mongooseTrack.methods._revise = function(eventId) {
     let document = this
-    
+
     let historyEvent = undefined
     historyEvent = document.history.filter(function(historyEvent) {
         return historyEvent._id === eventId
@@ -161,25 +163,56 @@ mongooseTrack.methods._restore = function(eventId, val) {
     if (!historyEvent && !historyChangeEvent) {
         return document
     }
-    if(historyEvent) {
+    if (historyEvent) {
         historyEvent.changes.forEach(function(historyChangeEvent) {
             dotRefSet(document, historyChangeEvent.path.join('.'), historyChangeEvent.after)
         })
 
         return document
     }
-    if(historyChangeEvent) {
+    if (historyChangeEvent) {
         dotRefSet(document, historyChangeEvent.path.join('.'), historyChangeEvent.after)
         return document
     }
 
+}
+mongooseTrack.methods._remove = function(eventId, val) {
+    let document = this
+
+    document._removed = true
+
+    return document.save()
+}
+mongooseTrack.methods._restore = function(eventId, val) {
+    let document = this
+
+    document._removed = false
+
+    return document.save()
+}
+mongooseTrack.statics = {}
+mongooseTrack.statics._find = function(query) {
+    query._removed = false
+    return this.find(query)
+        .select('+_removed')
+}
+mongooseTrack.statics._findOne = function(query) {
+    query._removed = false
+    return this.findOne(query)
+        .select('+_removed')
 }
 mongooseTrack.plugin = function(schema, optionOverride) {
     let options = merge(mongooseTrack._options, mongooseTrack.options, optionOverride)
 
     schema.add(mongooseTrack.historySchema(schema, options))
     schema.add(mongooseTrack.historyAuthorSchema(schema, options))
+    schema.add({ _removed: { type: Boolean, default: false, select: false } })
 
+    schema.statics._find = mongooseTrack.statics._find
+    schema.statics._findOne = mongooseTrack.statics._findOne
+
+    schema.methods._revise = mongooseTrack.methods._revise
+    schema.methods._remove = mongooseTrack.methods._remove
     schema.methods._restore = mongooseTrack.methods._restore
 
     schema.post('init', mongooseTrack.post.init)
