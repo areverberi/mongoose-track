@@ -145,9 +145,17 @@ mongooseTrack.pre.save = function(schema, options) {
     }
 }
 mongooseTrack.methods = {}
-mongooseTrack.methods._revise = function(eventId) {
+mongooseTrack.methods._revise = function(query) {
     let document = this
 
+    if (Object.prototype.toString.call(query) === '[object Date]') {
+        return mongooseTrack.methods._revise._date(document, query)
+    } else {
+        return mongooseTrack.methods._revise._id(document, query)
+    }
+
+}
+mongooseTrack.methods._revise._id = function(document, eventId) {
     let historyEvent = undefined
     historyEvent = document.history.filter(function(historyEvent) {
         return historyEvent._id === eventId
@@ -164,6 +172,7 @@ mongooseTrack.methods._revise = function(eventId) {
         return document
     }
     if (historyEvent) {
+        console.log(historyEvent._id)
         historyEvent.changes.forEach(function(historyChangeEvent) {
             dotRefSet(document, historyChangeEvent.path.join('.'), historyChangeEvent.after)
         })
@@ -174,7 +183,24 @@ mongooseTrack.methods._revise = function(eventId) {
         dotRefSet(document, historyChangeEvent.path.join('.'), historyChangeEvent.after)
         return document
     }
+}
+mongooseTrack.methods._revise._date = function(document, date) {
+    let historyEvent = undefined
+    historyEvent = document.history.filter(function(historyEvent) {
+        return historyEvent.date <= date
+    })
 
+    if (!historyEvent.length) {
+        return document
+    }
+    if (historyEvent) {
+        historyEvent.reverse().forEach(function(historyEvent) {
+            historyEvent.changes.forEach(function(historyChangeEvent) {
+                dotRefSet(document, historyChangeEvent.path.join('.'), historyChangeEvent.after)
+            })
+        })
+        return document
+    }
 }
 mongooseTrack.methods._forget = function(eventId, single) {
     let document = this
