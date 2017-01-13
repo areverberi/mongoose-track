@@ -1,6 +1,6 @@
 # Mongoose Track `0.0.5`
 
-Mongoose Track allows you to track document changes (deeply) with optional author reference and simple options.
+Mongoose Track allows you to track and manage document changes (deeply) with author references and simple helper methods/statics.
 
 ##Usage
 
