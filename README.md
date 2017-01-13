@@ -146,11 +146,30 @@ If `single` is set to `true` only the matching **historyEvent** will be removed.
 
 _This method **will** modify the `document.history`._
 
+##Statics
+
+###`model._find(mongoose.query)` `Function`
+
+This static simply appends `removed = true` to the `mongoose.query` and returns `model.find(mongoose.query)`
+
+###`model._findOne(mongoose.query)` `Function`
+
+This static simply appends `removed = true` to the `mongoose.query` and returns `model.findOne(mongoose.query)`
+
 ##Questions
 
- > If a **historyEvent** occurs but no **historyChangeEvent**'s are logged, does it really happen?
+ > What properties are excluded from a **historyEvent** by default?
 
-No. If a document is saved but no **historyChangeEvent**'s are logged then the **historyEvent** will not be written.
+Changes to the following: `['_id', '__v', 'history', 'historyAuthor']` will not be recorded, along with any schema properties that have `historyIgnore === true`.
+
+ > If a **historyEvent** occurs but no **historyChangeEvent**'s are logged, is it recorded?
+
+No. If the `history.changes` Array is empty, the **historyEvent** will not be saved.
+
+ > Can I pick where the history is stored? (other than `document.history`)
+
+Not yet, in the future you'll be able to set _most_ if not _all_ of the Mongoose Track keys, methods and statics.
+
 
 ##Example
 
@@ -161,7 +180,7 @@ git clone https://github.com/brod/mongoose-track.git
 cd mongoose-track
 node example.js
 ```
-You should see the output of all **historyEvent** and **historyChangeEvents** to a document including _manual changes_, _authored changes_ and a _revision_.
+You should see the output of all **historyEvent**'s and **historyChangeEvent**'s to a document including _manual changes_, _authored changes_, _forget changes_ and a _revision_.
 
 _This will connect to `mongodb://localhost/mongooseTrackExample`_
 
