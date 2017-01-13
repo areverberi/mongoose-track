@@ -243,11 +243,14 @@ mongooseTrack.statics._find = function(query) {
     if (query.$revision) {
         delete query.$revision
     }
+    if (query.$deepRevision) {
+        delete query.$deepRevision
+    }
     return this.find(query)
         .then(function(documentArray) {
             if (_query.$revision) {
                 documentArray.forEach(function(document) {
-                    mongooseTrack.methods._revise._date(document, _query.$revision, false)
+                    mongooseTrack.methods._revise._date(document, _query.$revision, _query.$deepRevision || false)
                 })
             }
             return documentArray
@@ -258,10 +261,13 @@ mongooseTrack.statics._findOne = function(query) {
     if (query.$revision) {
         delete query.$revision
     }
+    if (query.$deepRevision) {
+        delete query.$deepRevision
+    }
     return this.findOne(query)
         .then(function(document){
             if (_query.$revision) {
-                mongooseTrack.methods._revise._date(document, _query.$revision, false)
+                mongooseTrack.methods._revise._date(document, _query.$revision, _query.$deepRevision || false)
             }
             return document
         })
