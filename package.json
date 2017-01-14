@@ -1,6 +1,6 @@
 {
   "name": "mongoose-track",
-  "version": "0.0.52",
+  "version": "0.0.55",
   "description": "Manage document changes (deeply) with author reference and helper methods/statics.",
   "main": "index.js",
   "scripts": {
