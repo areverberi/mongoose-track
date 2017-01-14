@@ -1,4 +1,4 @@
-# Mongoose Track `0.0.52`
+# Mongoose Track `0.0.55`
 
 Mongoose Track allows you to track and manage document changes (deeply) with author references and simple helper methods/statics.
 
@@ -101,7 +101,7 @@ history: [{
  * This array contains all **historyEvent**'s for the document
  
 ###`historyEvent.date` `Date` `new Date()`
- * This value is set just before `document.save()` is fired
+ * This value is set just before `static.save()` is fired
 
 ###`historyEvent.author` `Mixed`
  * This value is set from `document.historyAuthor`, assuming `options.author.enabled === true`
@@ -132,17 +132,17 @@ A **historyChangeEvent** is a (singular) change to a document property that occu
  
 ##Methods
 
-###`document._remove()`
+###`method._remove()`
 
 This method will set `document._removed` to `true`
 
-###`document._restore()`
+###`method._restore()`
 
 This method will set `document._removed` to `false`
 
 _This method **will not** modify the `document.history` but will in the future_
 
-###`document._revise(query, deepRevision)` `Mixed` `Boolean`
+###`method._revise(query, deepRevision)` `Mixed` `Boolean`
 
 If the `query` value is an `ObjectId` value from a **historyEvent** or **historyChangeEvent** this will return a document with values matching the `historyEvent._id || historyChangeEvent._id`
 
@@ -156,7 +156,7 @@ Currently `deepRevision` does not support a `query` value of a **historyChangeEv
 
 _This method **will not** modify the `document.history`_
 
-###`document._forget(historyEventId, single)` `ObjectId` `Boolean`
+###`method._forget(historyEventId, single)` `ObjectId` `Boolean`
 
 This method accepts an `_id` from a **historyEvent** and will remove all `document.history` prior to and including the matching **historyEvent**
 
@@ -166,21 +166,29 @@ _This method **will** modify the `document.history`_
 
 ##Statics
 
-###`model._remove(query)` `mongoose.Query`
+###`static._remove(query)` `mongoose.Query`
 
-This static will set `document._removed` to `true` and returns a response from `model.update(query)`
+This static will set `document._removed` to `true` and returns a response from `static.update(query)`
 
-###`model._restore(query)` `mongoose.Query`
+###`static._restore(query)` `mongoose.Query`
 
-This static will set `document._removed` to `false` and returns a response from `model.update(query)`
+This static will set `document._removed` to `false` and returns a response from `static.update(query)`
 
-###`model._find(query)` `mongoose.Query`
+###`static._find(query)` `mongoose.Query`
 
-This static simply appends `removed = false` to the `query` and returns `model.find(query)`
+This static allows you to pass additional query operators to `static.find()`
 
-###`model._findOne(query)` `mongoose.Query`
+Passing `$revision` to the query with a `Date` value will return matching documents revised to that date, uses `method._revise()`
 
-This static simply appends `removed = false` to the `query` and returns `model.findOne(query)`
+Additionally you can define `$deepRevision` to return documents with a deep revision, same as `method._revise()`
+
+###`static._findOne(query)` `mongoose.Query`
+
+This static allows you to pass additional query operators to `static.findOne()`
+
+Passing `$revision` to the query with a `Date` value will return a matching document revised to that date, same as `method._revise()`
+
+Additionally you can define `$deepRevision` to return documents with a deep revision, same as `method._revise()`
 
 ##Questions
 
