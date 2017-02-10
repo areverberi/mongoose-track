@@ -1,3 +1,5 @@
+'use strict';
+
 const diffCheck = require('deep-diff').diff
 const merge = require('merge-options')
 const mongoose = require('mongoose')
