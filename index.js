@@ -4,7 +4,7 @@ const diffCheck = require('deep-diff').diff;
 const merge = require('merge-options');
 const mongoose = require('mongoose');
 
-const {get as dotRefGet, set as dotRefSet} = require('lodash');
+const { get: dotRefGet, set: dotRefSet } = require('lodash');
 
 // const dotRefGet = function(obj, str) {
 //   str = str.split('.');
