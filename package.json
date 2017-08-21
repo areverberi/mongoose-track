@@ -27,6 +27,7 @@
   "homepage": "https://github.com/brod/mongoose-track#readme",
   "dependencies": {
     "deep-diff": "^0.3.4",
+    "lodash": "^4.13.1",
     "merge-options": "0.0.64",
     "mongoose": "^4.7.6"
   }

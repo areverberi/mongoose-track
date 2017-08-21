@@ -4,23 +4,25 @@ const diffCheck = require('deep-diff').diff;
 const merge = require('merge-options');
 const mongoose = require('mongoose');
 
-const dotRefGet = function(obj, str) {
-  str = str.split('.');
-  for (var i = 0; i < str.length; i++) {
-    obj = obj[str[i]];
-  }
-  return obj;
-};
+const {get as dotRefGet, set as dotRefSet} = require('lodash');
 
-const dotRefSet = function(obj, str, val) {
-  str = str.split('.');
-  for (var i = 0; i < str.length - 1; i++) {
-    obj = obj[str[i]];
-  }
-  let _path = str[str.length - 1];
-  obj[_path] = val;
-  return obj;
-};
+// const dotRefGet = function(obj, str) {
+//   str = str.split('.');
+//   for (var i = 0; i < str.length; i++) {
+//     obj = obj[str[i]];
+//   }
+//   return obj;
+// };
+//
+// const dotRefSet = function(obj, str, val) {
+//   str = str.split('.');
+//   for (var i = 0; i < str.length - 1; i++) {
+//     obj = obj[str[i]];
+//   }
+//   let _path = str[str.length - 1];
+//   obj[_path] = val;
+//   return obj;
+// };
 
 const mongooseTrack = {};
 mongooseTrack._options = {
