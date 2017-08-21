@@ -4,7 +4,12 @@ const diffCheck = require('deep-diff').diff;
 const merge = require('merge-options');
 const mongoose = require('mongoose');
 
-const { get: dotRefGet, set: dotRefSet } = require('lodash');
+const {
+  get: dotRefGet,
+  set: dotRefSet,
+  findIndex,
+  takeWhile
+} = require('lodash');
 
 // const dotRefGet = function(obj, str) {
 //   str = str.split('.');
@@ -177,12 +182,15 @@ mongooseTrack.methods._revise = function(query, deepRevision) {
   }
 };
 mongooseTrack.methods._revise._id = function(document, eventId, deepRevision) {
-  let historyEventArray = undefined;
-  historyEventArray = document.history.filter(function(historyEvent) {
+  let historyEventArray;
+  const historyEventIndex = findIndex(document.history, historyEvent => {
     return String(historyEvent._id) === eventId;
   });
+  historyEventArray = takeWhile(document.history, (_, idx) => {
+    return idx < historyEventIndex;
+  });
 
-  let historyChangeEvent = undefined;
+  let historyChangeEvent;
   document.history.forEach(function(historyEvent) {
     historyChangeEvent =
       historyEvent.changes.filter(function(historyChangeEvent) {
@@ -208,7 +216,7 @@ mongooseTrack.methods._revise._id = function(document, eventId, deepRevision) {
   return document;
 };
 mongooseTrack.methods._revise._date = function(document, date, deepRevision) {
-  let historyEventArray = undefined;
+  let historyEventArray;
   historyEventArray = document.history.filter(function(historyEvent) {
     return historyEvent.date <= date;
   });
@@ -231,12 +239,12 @@ mongooseTrack.methods._revise._historyEventArray = function(
   if (deepRevision !== true) {
     historyEventArray = historyEventArray.slice(0, 1);
   }
-  historyEventArray.reverse().forEach(function(historyEvent) {
+  historyEventArray.forEach(function(historyEvent) {
     historyEvent.changes.forEach(function(historyChangeEvent) {
       dotRefSet(
         document,
         historyChangeEvent.path.join('.'),
-        historyChangeEvent.after
+        historyChangeEvent.before
       );
     });
   });
@@ -245,7 +253,7 @@ mongooseTrack.methods._revise._historyEventArray = function(
 mongooseTrack.methods._forget = function(eventId, single) {
   let document = this;
 
-  let historyEvent = undefined;
+  let historyEvent;
   historyEvent = document.history.filter(function(historyEvent) {
     return historyEvent._id === eventId;
   })[0];
